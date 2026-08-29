@@ -1,11 +1,7 @@
 # ZCode Prompt
 
-Use file-level UE automation.
+Use `https://github.com/dadaozei01/ue-ai-bridge-protocol`. Detect the exact Unreal Engine version and use only a protocol marked verified for that version.
 
-- C++: project `Source` + Editor build.
-- Materials/assets: UE Python + standard material APIs.
-- Bridge fallback: `Content/Python/init_unreal.py` registers a menu; task body lives in `Saved/CodexScripts/run_task.py`.
-- Do not use plugins by default.
-- Do not control UE UI by default.
-- Do not rely on Remote Execution if multicast discovery fails.
-- Do not promise full Blueprint graph node authoring through UE Python unless verified.
+For verified UE 5.4, use project `Source` and the actual Editor Target for C++, and UE Python inside the editor for the user's requested editor-asset task. Do not default to plugins, UI control, Blueprint-node clicking, or a material type.
+
+Probe Remote Execution once. If discovery fails, preserve the bridge, atomically update `Saved/CodexScripts/run_task.py`, use `任务脚本 -> 运行任务脚本`, and verify `Saved/CodexScripts/last_task_report.json` before claiming success.

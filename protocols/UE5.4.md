@@ -1,79 +1,77 @@
 # UE 5.4 File-Level AI Automation Protocol
 
-Use this protocol when an AI coding tool works on a UE 5.4 project.
+Status: verified on macOS Apple Silicon with an installed Epic Games UE 5.4 build and a real Blueprint + project C++ hybrid project.
+
+Use this protocol only after confirming that the project's `EngineAssociation` is `5.4`.
 
 ## Before Editing
 
-Confirm:
+Confirm and report:
 
-- Project path: `<PROJECT>/<Name>.uproject`
-- Engine path:
-  - macOS default: `/Users/Shared/Epic Games/UE_5.4`
-  - Windows default: `C:\Program Files\Epic Games\UE_5.4`
-- Platform and architecture:
-  - macOS Apple Silicon: compile with `-architecture=arm64`
-  - Windows: compile with `Win64`
+- Absolute `.uproject` path.
+- Absolute UE 5.4 engine path.
+- Platform and CPU architecture.
+- Project module names from `.uproject` and `Source/*/*.Build.cs`.
+- Editor Target name from `Source/*.Target.cs`.
+- Whether Python Editor Script Plugin and Editor Scripting Utilities are enabled.
+- Whether Unreal Editor is currently open.
 
-macOS editor logs are usually under:
+If either required Python plugin is disabled, tell the user exactly which plugin is missing. Enable it through the project Plugin Browser, or edit the `.uproject` only with the user's authorization and a recoverable backup. A plugin-state change requires an Unreal Editor restart.
+
+Editor Target is not necessarily the module name. Build the target declared by the `TargetRules` class whose `Type` is `TargetType.Editor`; do not construct a target name by blindly appending `Editor` to a module name.
+
+Typical engine paths:
 
 ```text
-~/Library/Logs/Unreal Engine/<ProjectName>Editor/
+macOS:   /Users/Shared/Epic Games/UE_5.4
+Windows: C:\Program Files\Epic Games\UE_5.4
 ```
 
-They are often not under the project `Saved/Logs` folder.
+## Boundaries
 
-## Do Not Default To
-
-- Do not control the UE UI as the first approach.
+- Do not control the Unreal Editor UI as the first approach.
+- Do not create a plugin unless the user explicitly requests one.
 - Do not auto-click Blueprint graph nodes.
-- Do not create a plugin unless the user explicitly asks.
-- Do not assume UE Python can generate full Blueprint EventGraph K2 node logic.
-- Do not rely on Remote Execution as the only path.
+- Do not promise full Blueprint EventGraph K2 node authoring through Python.
+- Do not spend an extended session repeatedly probing Remote Execution.
+- Do not overwrite existing project startup Python or task files during bridge installation.
+- Do not replace or delete existing asset graphs unless the user explicitly requested replacement.
 
-## C++ Features
+## Project C++
 
-Use project C++, not a plugin, unless the user explicitly asks for a plugin.
-
-Write code under:
+Use project C++ under the existing project module:
 
 ```text
 <PROJECT>/Source/<Module>/Public/
 <PROJECT>/Source/<Module>/Private/
 ```
 
-Only add `.uproject` `Modules` when converting a Blueprint-only project or adding a new module.
+Only add `.uproject` `Modules` and standard target/module files when converting a Blueprint-only project or intentionally adding a module. Blueprint assets continue to work in a project that contains C++.
 
-macOS Apple Silicon compile command:
+macOS Apple Silicon:
 
 ```bash
-<ENGINE>/Engine/Build/BatchFiles/Mac/Build.sh <Module>Editor Mac Development \
+<ENGINE>/Engine/Build/BatchFiles/Mac/Build.sh <EditorTarget> Mac Development \
   -project="<PROJECT>/<Name>.uproject" \
   -architecture=arm64 \
   -NoHotReload
 ```
 
-Windows compile command:
+Windows:
 
 ```bat
-"<ENGINE>\Engine\Build\BatchFiles\Build.bat" <Module>Editor Win64 Development ^
+"<ENGINE>\Engine\Build\BatchFiles\Build.bat" <EditorTarget> Win64 Development ^
   -project="<PROJECT>\<Name>.uproject" ^
   -NoHotReload
 ```
 
-When adding or changing `UCLASS`, `UFUNCTION`, `UPROPERTY`, `USTRUCT`, or `UENUM`, ask the user to restart UE after a successful compile. Live Coding can leave stale reflection data.
+When adding or changing `UCLASS`, `UFUNCTION`, `UPROPERTY`, `USTRUCT`, or `UENUM`, compile successfully and restart Unreal Editor. Live Coding can leave stale reflection data. For `.cpp` implementation-only changes, Live Coding may be attempted, but fall back to a normal Editor Target build if results are stale.
 
-For `.cpp` implementation-only changes, Live Coding may be attempted, but if behavior is stale or compile fails, close UE and compile normally.
+## Materials And Editor Assets
 
-## Materials And Assets
+The protocol is task-neutral. Translate the user's requested asset or material behavior into standard UE Python; do not assume a particular material type or visual effect.
 
-Use standard UE Python asset APIs:
-
-```python
-tools = unreal.AssetToolsHelpers.get_asset_tools()
-mat = tools.create_asset(name, folder, unreal.Material, unreal.MaterialFactoryNew())
-```
-
-Use old/standard material editing APIs:
+For traditional material graph authoring in UE 5.4, prefer the APIs available in the installed engine, including:
 
 - `unreal.MaterialFactoryNew`
 - `unreal.MaterialEditingLibrary.create_material_expression`
@@ -83,50 +81,67 @@ Use old/standard material editing APIs:
 - `unreal.MaterialEditingLibrary.recompile_material`
 - `unreal.EditorAssetLibrary.save_loaded_asset`
 
-Use `set_editor_property` for expression properties:
+Use `set_editor_property` on expression instances when a property is not exposed as a direct Python attribute. Before changing an existing asset, load and inspect it. Rebuild or delete its graph only when replacement is explicitly requested.
 
-```python
-expr.set_editor_property("parameter_name", "BaseColor")
-```
+## Python Execution Order
 
-Do not use direct assignment for properties that may not be exposed as Python attributes.
+1. If Remote Execution is already known to work in the current environment, use it.
+2. Otherwise perform one short discovery attempt; if no node is found, stop probing and use the button bridge.
+3. For the button bridge, atomically update `Saved/CodexScripts/run_task.py`, ask the user to select the menu command once, then read `last_task_report.json`.
+4. Use command-line Python only when a separate editor process is appropriate and project plugins are already enabled.
 
-Material shading rule:
-
-- Pure self-lit VFX: `MSM_UNLIT` + Emissive Color.
-- Surface that keeps its own color and still emits light: `MSM_DEFAULT_LIT` + Base Color + Emissive Color.
-
-## Execution Priority For Python Tasks
-
-Use this order:
-
-1. Remote Execution if the current UE instance is discoverable.
-2. In-editor button bridge: update `Saved/CodexScripts/run_task.py`, then user clicks the menu item.
-3. StartupScripts: install a one-shot startup script, user restarts UE once, script removes or reports the hook.
-4. Offline command-line Python task, when permissions allow it.
-
-UE 5.4 Python Remote Execution uses multicast discovery. It may be enabled in UE and still not be discoverable from a sandboxed external tool.
+UE 5.4 Remote Execution uses UDP multicast discovery. The editor setting can be enabled while a sandboxed external tool still cannot discover it. This is an environment limitation, not proof that the user configured UE incorrectly.
 
 ## Button Bridge
 
-The bridge is optional but recommended for frequent material and asset work.
-
-Files:
+Installed files:
 
 ```text
 <PROJECT>/Content/Python/init_unreal.py
+<PROJECT>/Content/Python/ue_ai_bridge_init.py
+<PROJECT>/Content/Python/ue_ai_bridge_runner.py
 <PROJECT>/Saved/CodexScripts/run_task.py
 ```
 
-`init_unreal.py` registers a menu item. `run_task.py` is the task body AI tools rewrite.
+`init_unreal.py` loads the bridge module. The bridge waits for `LevelEditor.MainMenu`, registers `任务脚本 -> 运行任务脚本`, and then unregisters its post-tick callback.
 
-The bridge requires one restart after installation. Later task execution does not require a restart.
+UE 5.4 does not accept a normal Python string for `ToolMenuEntry.owner`. The verified bridge therefore does not assign that property. Do not reintroduce a string owner based on APIs from another engine version.
+
+The runner prevents overlapping execution and atomically writes:
+
+```text
+<PROJECT>/Saved/CodexScripts/last_task_report.json
+```
+
+The bridge requires one restart after initial installation. Later task execution does not require a restart.
+
+## Task Result Contract
+
+A task succeeds only when `last_task_report.json` has `"status": "success"`. The existence of a `.uasset` file alone does not prove that its graph, properties, or connections are correct.
+
+Tasks may publish structured details:
+
+```python
+UE_AI_BRIDGE_TASK_ID = "a-unique-id-for-this-task"
+UE_AI_BRIDGE_RESULT = {
+    "message": "Task-specific summary",
+    "assets": ["/Game/Path/AssetName"],
+}
+```
+
+Before accepting a previous `success`, compare the report's `task_id` or `task_sha256` with the current task. A successful report for an older task is not proof that the current task ran.
 
 ## Verification
 
 After every task:
 
-- Check compile output for C++ tasks.
-- Check UE logs for Python tasks.
-- Confirm expected `.uasset` files exist on disk.
-- Tell the user whether a UE restart is required.
+- C++: require a successful Editor Target build and state whether a restart is required.
+- Python: read `last_task_report.json` and inspect the UE log on failure.
+- Assets: verify expected package paths and the requested graph or property state inside UE.
+- Never claim success from file writes alone.
+
+macOS UE editor logs are typically under:
+
+```text
+~/Library/Logs/Unreal Engine/<ProjectName>Editor/
+```

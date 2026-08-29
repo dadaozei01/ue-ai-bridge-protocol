@@ -2,6 +2,8 @@
 
 Status: pending direct project verification.
 
+Do not use this file as an execution procedure.
+
 Start from `protocols/UE5.4.md` and verify API differences before making promises.
 
 Expected stable principles:

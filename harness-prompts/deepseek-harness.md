@@ -1,39 +1,17 @@
 # DeepSeek Harness Prompt
 
-Strictly follow my UE AI Bridge Protocol.
+Strictly follow `https://github.com/dadaozei01/ue-ai-bridge-protocol`.
 
-First identify:
+First identify the exact `.uproject`, engine version and path, platform, CPU architecture, project modules, Editor Target, plugin state, and whether Unreal Editor is open. Never use a reserved version note as an execution procedure.
 
-- `.uproject` path
-- UE engine path
-- platform
-- CPU architecture
-- whether Python Editor Script Plugin and Editor Scripting Utilities are enabled
+For verified UE 5.4:
 
-Rules:
+- Project C++ belongs under `Source`, not in a plugin unless explicitly requested.
+- Build the actual Editor Target; do not derive it from a module name.
+- Editor assets use UE Python implementing exactly the user's request.
+- Do not operate UE UI or Blueprint graph nodes by default.
+- Attempt Remote Execution discovery once only.
+- On discovery failure, preserve existing bridge files, atomically replace `Saved/CodexScripts/run_task.py`, and ask for one selection of `任务脚本 -> 运行任务脚本`.
+- Read `Saved/CodexScripts/last_task_report.json`; success requires `"status": "success"`.
 
-- Do not operate Unreal Editor UI unless I explicitly ask.
-- Do not default to plugins.
-- Do not waste time trying to auto-click Blueprint graph nodes.
-- Do not rely on Remote Execution as the only path.
-- Do not claim UE Python can create full Blueprint EventGraph logic until verified.
-
-C++:
-
-- Use project `Source`, not a plugin.
-- Compile Editor target.
-- macOS Apple Silicon: use `-architecture=arm64 -NoHotReload`.
-- Windows: use `Win64 -NoHotReload`.
-- Reflection changes require UE restart.
-
-Materials and assets:
-
-- Use UE Python.
-- Prefer standard Material APIs: `MaterialFactoryNew` and `MaterialEditingLibrary`.
-- If Remote Execution fails, use the in-editor button bridge.
-- The button bridge uses:
-  - `Content/Python/init_unreal.py`
-  - `Saved/CodexScripts/run_task.py`
-- Only rewrite `run_task.py` for each task. Do not put task logic into `init_unreal.py`.
-
-Before editing, list files to change. After editing, verify logs and generated `.uasset` files.
+List intended files before editing and verify build output, report data, and requested asset state afterward.

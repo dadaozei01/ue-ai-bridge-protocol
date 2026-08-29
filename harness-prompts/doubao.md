@@ -1,11 +1,7 @@
 # Doubao Prompt
 
-请严格按我的 UE AI Bridge Protocol 执行。
+请严格遵循 `https://github.com/dadaozei01/ue-ai-bridge-protocol`，先识别项目准确的 UE 版本，只允许使用标记为已实测的对应版本协议。
 
-不要默认操作 UE 界面，不要默认创建插件，不要自动点蓝图节点。
+对于已验证的 UE5.4：C++ 写入项目 `Source`，编译 `Target.cs` 中真实存在的 Editor Target；编辑器资产使用 UE 内部 Python，并严格按用户描述实现，不预设材质类型或效果。不要默认创建插件、操作 UE 界面或点击蓝图节点。
 
-C++ 功能：直接改项目 `Source`，编译 Editor 目标。Mac Apple Silicon 必须使用 `-architecture=arm64 -NoHotReload`。新增或修改 `UCLASS / UPROPERTY / UFUNCTION / USTRUCT / UENUM` 后告诉我需要重启 UE。
-
-材质和资产：用 UE Python 的标准老接口。Remote Execution 能连上就直接执行；连不上就更新 `Saved/CodexScripts/run_task.py`，让我在 UE 里点 `任务脚本 -> ▶ 运行任务脚本`。
-
-按钮桥由 `Content/Python/init_unreal.py` 注册菜单，只负责入口；具体任务只写 `run_task.py`。
+Remote Execution 只探测一次。发现失败后，保留已有桥接文件，原子替换 `Saved/CodexScripts/run_task.py`，执行一次 `任务脚本 -> 运行任务脚本`，然后读取 `Saved/CodexScripts/last_task_report.json`。只有报告状态为 `success` 才能宣布成功。

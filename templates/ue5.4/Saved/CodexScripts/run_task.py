@@ -1,3 +1,8 @@
 import unreal
 
-unreal.log("[UEAIBridge] run_task.py executed. Replace this file with the current task.")
+UE_AI_BRIDGE_TASK_ID = "connection-smoke-test"
+UE_AI_BRIDGE_RESULT = {
+    "message": "Connection task executed inside Unreal Editor.",
+}
+
+unreal.log("[UEAIBridge] Connection task executed inside Unreal Editor.")

@@ -1,10 +1,7 @@
 # WorkBuddy Prompt
 
-Follow my UE AI Bridge Protocol for UE 5.4 automation.
+Follow `https://github.com/dadaozei01/ue-ai-bridge-protocol` and select only the protocol verified for the project's exact Unreal Engine version.
 
-For gameplay systems, write project C++ under `Source` and compile the Editor target. Avoid plugins unless explicitly requested.
+For verified UE 5.4, use project `Source` plus the actual Editor Target for C++ and UE Python inside the editor for requested editor-asset work. Do not default to plugins, UI automation, Blueprint-node clicking, or a particular material type.
 
-For materials, folders, asset creation, imports, and batch edits, use UE Python. If Remote Execution is not discoverable, use the installed menu bridge: update `Saved/CodexScripts/run_task.py`, then ask me to click `任务脚本 -> ▶ 运行任务脚本`.
-
-Do not automate UE UI clicks as the default approach.
-Do not promise direct Blueprint EventGraph K2 node generation through Python without verifying the API.
+Try Remote Execution discovery once. If it fails, preserve the installed bridge, atomically update `Saved/CodexScripts/run_task.py`, use `任务脚本 -> 运行任务脚本`, and read `Saved/CodexScripts/last_task_report.json` before reporting success.
