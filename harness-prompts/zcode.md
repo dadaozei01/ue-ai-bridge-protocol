@@ -4,4 +4,4 @@ Use `https://github.com/dadaozei01/ue-ai-bridge-protocol`. Detect the exact Unre
 
 For verified UE 5.4, use project `Source` and the actual Editor Target for C++, and UE Python inside the editor for the user's requested editor-asset task. Do not default to plugins, UI control, Blueprint-node clicking, or a material type.
 
-Probe Remote Execution once. If discovery fails, preserve the bridge, atomically update `Saved/CodexScripts/run_task.py`, use `任务脚本 -> 运行任务脚本`, and verify `Saved/CodexScripts/last_task_report.json` before claiming success.
+Probe Remote Execution once. If discovery fails, preserve the bridge, assign a unique `UE_AI_BRIDGE_TASK_ID`, atomically update `Saved/CodexScripts/run_task.py`, use `任务脚本 -> 运行任务脚本`, and match `task_id` in `Saved/CodexScripts/last_task_report.json` before claiming success.

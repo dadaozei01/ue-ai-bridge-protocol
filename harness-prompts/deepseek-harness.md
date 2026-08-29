@@ -11,7 +11,7 @@ For verified UE 5.4:
 - Editor assets use UE Python implementing exactly the user's request.
 - Do not operate UE UI or Blueprint graph nodes by default.
 - Attempt Remote Execution discovery once only.
-- On discovery failure, preserve existing bridge files, atomically replace `Saved/CodexScripts/run_task.py`, and ask for one selection of `任务脚本 -> 运行任务脚本`.
-- Read `Saved/CodexScripts/last_task_report.json`; success requires `"status": "success"`.
+- On discovery failure, preserve existing bridge files, assign a unique `UE_AI_BRIDGE_TASK_ID`, atomically replace `Saved/CodexScripts/run_task.py`, and ask for one selection of `任务脚本 -> 运行任务脚本`.
+- Read `Saved/CodexScripts/last_task_report.json`; success requires `"status": "success"` and a matching `task_id`.
 
 List intended files before editing and verify build output, report data, and requested asset state afterward.

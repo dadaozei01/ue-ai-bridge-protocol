@@ -20,6 +20,10 @@ class RepositoryContractTests(unittest.TestCase):
             project_dir = Path(temp_dir) / "Test Project"
             project_dir.mkdir()
             (project_dir / "TestProject.uproject").write_text("{}\n", encoding="utf-8")
+            python_dir = project_dir / "Content/Python"
+            python_dir.mkdir(parents=True)
+            init_script = python_dir / "init_unreal.py"
+            init_script.write_text("# existing project startup\n", encoding="utf-8")
 
             installer = ROOT / "scripts/mac/install_bridge.sh"
             subprocess.run([str(installer), str(project_dir)], check=True, capture_output=True)
@@ -30,6 +34,9 @@ class RepositoryContractTests(unittest.TestCase):
 
             subprocess.run([str(installer), str(project_dir)], check=True, capture_output=True)
             self.assertEqual(task_script.read_text(encoding="utf-8"), marker)
+            installed_init = init_script.read_text(encoding="utf-8")
+            self.assertIn("# existing project startup", installed_init)
+            self.assertEqual(installed_init.count("UE_AI_BRIDGE_LOADER_START"), 1)
 
     def test_compile_helpers_accept_editor_target_name(self):
         mac_source = (ROOT / "scripts/mac/compile_editor_arm64.sh").read_text(
@@ -71,6 +78,9 @@ class RepositoryContractTests(unittest.TestCase):
             with self.subTest(name=name):
                 source = (ROOT / "protocols" / name).read_text(encoding="utf-8")
                 self.assertIn("Do not use this file as an execution procedure.", source)
+                self.assertNotIn("Start from", source)
+                self.assertNotIn("Expected stable principles", source)
+                self.assertNotIn("Before using", source)
 
     def test_universal_harness_prompt_routes_to_exact_version(self):
         source = (ROOT / "harness-prompts/universal.md").read_text(encoding="utf-8")
@@ -81,6 +91,8 @@ class RepositoryContractTests(unittest.TestCase):
             with self.subTest(path=path.name):
                 prompt = path.read_text(encoding="utf-8")
                 self.assertIn("last_task_report.json", prompt)
+                self.assertIn("UE_AI_BRIDGE_TASK_ID", prompt)
+                self.assertIn("task_id", prompt)
                 self.assertNotIn("▶", prompt)
 
     def test_ue54_protocol_distinguishes_target_from_module(self):

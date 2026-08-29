@@ -10,8 +10,8 @@ For verified UE 5.4 work:
 - Compile the actual Editor Target. On macOS Apple Silicon use `-architecture=arm64 -NoHotReload`.
 - Use UE Python inside the editor for requested material and editor-asset tasks without assuming a material type or effect.
 - Do not control UE UI or auto-click Blueprint nodes by default.
-- Probe Remote Execution once. If discovery fails, atomically update `Saved/CodexScripts/run_task.py` and use `任务脚本 -> 运行任务脚本`.
-- Read `Saved/CodexScripts/last_task_report.json` before claiming success.
+- Probe Remote Execution once. If discovery fails, give the task a unique `UE_AI_BRIDGE_TASK_ID`, atomically update `Saved/CodexScripts/run_task.py`, and use `任务脚本 -> 运行任务脚本`.
+- Read `Saved/CodexScripts/last_task_report.json` and match its `task_id` before claiming success.
 - Preserve existing startup Python, task files, assets, and unrelated user changes.
 
 Reflection changes require a successful build and Unreal Editor restart. Do not promise full Blueprint EventGraph generation through Python.
