@@ -1,5 +1,17 @@
 # UE 5.4 工具栏按钮标准：只保留白色 ▶
 
+## 先检查，避免重复安装
+
+统一入口见 [跨 Agent 接入说明](agent-entry.md)。**当前项目已有按钮就保留，确认没有才安装；Agent 执行功能优先直连独立脚本，不默认使用按钮。**
+
+- 已有按钮：不重装、不热刷新、不修改现有绑定/启动脚本，不替换 `run_task.py` 做测试。
+- 确认缺失：使用本页的项目级 Python 模板安装；先检查插件、权限和已有文件。不要全局安装。
+- 文件存在但可见性/注册状态不明：先只读检查日志、当前注册证据或请用户确认，不当作缺失直接覆盖。
+- 任务停用：按钮仍可保留，停用的任务继续停用。按钮存在不等于 Remote Execution 已启用。
+- 直连失败：先报告并协商回退，不自动修改按钮任务，也不自动重启编辑器。
+
+以下安装、热刷新和点击验收步骤，仅适用于缺失按钮的安装或用户明确要求的修复/升级；不是每次接手项目都要运行的流程。
+
 ## 实测范围
 
 2026-08-31，Windows UE **5.4.4** 实际工程验证：Python 注册工具栏、白色三角显示、当前编辑器热刷新、移除旧菜单、用户亲自点击后生成匹配任务 ID 和 SHA-256 的成功报告。
@@ -53,7 +65,7 @@ menus.remove_menu("LevelEditor.MainMenu.UEAIBridgeTaskMenu")
 ## 安装与升级
 
 1. 确认准确的 `.uproject`、UE 版本、插件状态及当前打开的工程。
-2. 启用 Python Editor Script Plugin 和 Editor Scripting Utilities；插件状态更改需要重启。
+2. 检查 Python Editor Script Plugin 和 Editor Scripting Utilities；如需启用或重启，先说明并取得用户同意，不自动关闭当前编辑器。
 3. 升级前备份现有启动脚本、两个桥接模块和任务脚本。安装器会覆盖两个桥接模块，不自动为它们备份。
 4. 在仓库目录运行 Windows 安装器：
 
@@ -61,14 +73,14 @@ menus.remove_menu("LevelEditor.MainMenu.UEAIBridgeTaskMenu")
    .\scripts\windows\install_bridge.ps1 -ProjectDir "C:\absolute\path\to\Project"
    ```
 
-5. 初次安装后重启一次。已有启动代码会保留，必要时追加 loader；已有 `run_task.py` 不会被安装器替换。
-6. **点击前先检查旧任务内容**：保留下来的诊断脚本可能含有删除测试资产等操作。得到授权并备份后，换成下面的安全测试。
+5. 初装可等用户下次正常打开编辑器时加载，不自动重启。已有启动代码会保留，必要时追加 loader；已有 `run_task.py` 不会被安装器替换。
+6. **点击前先检查旧任务内容**：保留下来的诊断脚本可能含有删除测试资产等操作。只有用户明确同意按钮测试和任务替换时，才备份后换成下面的安全测试；停用占位脚本不能擅自启用。
 
 日常更新 `run_task.py` 不需要重启。不要为了刷新按钮关闭用户尚未保存的工程。
 
 ### 已连接编辑器的热刷新
 
-仅当 Remote Execution 已经能发现当前编辑器时使用；发现失败就停止探测，使用重启/已安装按钮路径，不持续尝试网络配置。
+仅在用户同意的安装/修复中，且 Remote Execution 已经能发现当前编辑器时使用；发现失败就停止并报告，不自动重启、切换执行路径或持续调整网络配置。已有工作按钮不做热刷新。
 
 在调用下列代码前，核对远端 `unreal.Paths.project_dir()`、`unreal.SystemLibrary.get_engine_version()` 和 `ue_ai_bridge_init.__file__`，确保是已确认的工程、5.4 版本和项目 Python 文件。不要把一个工程的成功当成另一个工程的验证。
 
@@ -142,4 +154,4 @@ unreal.log("[UEAIBridge] BUTTON_TEST_OK: " + UE_AI_BRIDGE_TASK_ID)
 
 ## 可直接交给 AI 的短指令
 
-> 按本仓库 Windows UE 5.4.4 实测标准安装 Python 工具栏白色 ▶，标签为「▶ 运行任务脚本」，仅在按钮成功后移除旧「任务脚本」菜单。使用 EditorStyle / PlayWorld.PlayInViewport / Icons.Play，不新增 C++、插件、Target 或工程 Modules。先备份并检查旧任务，用新的无资产修改测试编号，用户点击后同时核对报告状态、任务 ID、脚本哈希、时间和结果内容；禁止拿旧 success 或注册日志代替实际验收。
+> 先检查当前项目是否已有按钮：有则保留，不重装、不替换任务；确认没有才按本仓库 Windows UE 5.4.4 标准安装项目级白色 ▶。标签为「▶ 运行任务脚本」，图标使用 EditorStyle / PlayWorld.PlayInViewport / Icons.Play，不新增 C++、插件、Target 或工程 Modules。Agent 执行功能优先直连独立脚本，直连失败先报告，不自动覆盖 run_task.py。只有明确同意的按钮验收才准备新测试，用户点击后核对状态、任务 ID、哈希、时间和结果，禁止用旧报告代替验收。
