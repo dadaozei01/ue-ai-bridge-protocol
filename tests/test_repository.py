@@ -1,3 +1,5 @@
+import os
+import shutil
 import subprocess
 import tempfile
 import unittest
@@ -25,14 +27,20 @@ class RepositoryContractTests(unittest.TestCase):
             init_script = python_dir / "init_unreal.py"
             init_script.write_text("# existing project startup\n", encoding="utf-8")
 
-            installer = ROOT / "scripts/mac/install_bridge.sh"
-            subprocess.run([str(installer), str(project_dir)], check=True, capture_output=True)
+            if os.name == "nt":
+                shell = shutil.which("pwsh") or shutil.which("powershell")
+                self.assertIsNotNone(shell, "PowerShell is required for the Windows installer test")
+                command = [shell, "-NoProfile", "-File", str(ROOT / "scripts/windows/install_bridge.ps1"),
+                           "-ProjectDir", str(project_dir)]
+            else:
+                command = ["bash", str(ROOT / "scripts/mac/install_bridge.sh"), str(project_dir)]
+            subprocess.run(command, check=True, capture_output=True)
 
             task_script = project_dir / "Saved/CodexScripts/run_task.py"
             marker = "# user task must survive reinstall\n"
             task_script.write_text(marker, encoding="utf-8")
 
-            subprocess.run([str(installer), str(project_dir)], check=True, capture_output=True)
+            subprocess.run(command, check=True, capture_output=True)
             self.assertEqual(task_script.read_text(encoding="utf-8"), marker)
             installed_init = init_script.read_text(encoding="utf-8")
             self.assertIn("# existing project startup", installed_init)
@@ -93,7 +101,12 @@ class RepositoryContractTests(unittest.TestCase):
                 self.assertIn("last_task_report.json", prompt)
                 self.assertIn("UE_AI_BRIDGE_TASK_ID", prompt)
                 self.assertIn("task_id", prompt)
-                self.assertNotIn("▶", prompt)
+                self.assertIn("task_sha256", prompt)
+                self.assertIn("Windows UE 5.4.4", prompt)
+                self.assertIn("docs/toolbar-button-ue5.4.md", prompt)
+                self.assertIn("PlayWorld.PlayInViewport", prompt)
+                self.assertIn("Icons.Play", prompt)
+                self.assertNotIn("任务脚本 -> 运行任务脚本", prompt)
 
     def test_ue54_protocol_distinguishes_target_from_module(self):
         source = (ROOT / "protocols/UE5.4.md").read_text(encoding="utf-8")

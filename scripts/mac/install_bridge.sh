@@ -57,4 +57,6 @@ echo "  $PYTHON_DIR/ue_ai_bridge_init.py"
 echo "  $PYTHON_DIR/ue_ai_bridge_runner.py"
 echo "  $TASK_DIR/run_task.py"
 echo
-echo "Restart Unreal Editor once. Then use: 任务脚本 -> 运行任务脚本"
+echo "Restart Unreal Editor once. Then click the play triangle in the top toolbar."
+echo "The toolbar-only template was verified on Windows UE 5.4.4, not yet on macOS."
+echo "Inspect any preserved run_task.py before clicking; installation does not make old tasks safe."

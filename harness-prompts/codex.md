@@ -1,17 +1,19 @@
 # Codex Prompt
 
-Use the protocol at `https://github.com/dadaozei01/ue-ai-bridge-protocol`.
+Use the UE AI Bridge Protocol at `https://github.com/dadaozei01/ue-ai-bridge-protocol`.
 
-Inspect the `.uproject`, installed engine, platform, architecture, modules, and actual Editor Target before editing. Use only a protocol marked verified for that exact engine version.
+Inspect the exact `.uproject`, installed engine version/path, platform, architecture, project modules, actual Editor Target, plugin state, and whether Unreal Editor is open before editing. Select the protocol for the exact installed engine version. Reserved version notes are not execution procedures.
 
-For verified UE 5.4 work:
+The toolbar-only bridge is verified on **Windows UE 5.4.4**. Historical macOS Apple Silicon UE 5.4 Python/menu and C++ checks do not validate the new toolbar on macOS, other patch versions, or Windows C++ builds. Read `protocols/UE5.4.md` and `docs/toolbar-button-ue5.4.md`; report unverified combinations instead of claiming compatibility.
 
-- Keep project-specific C++ under project `Source`; do not default to a plugin.
-- Compile the actual Editor Target. On macOS Apple Silicon use `-architecture=arm64 -NoHotReload`.
-- Use UE Python inside the editor for requested material and editor-asset tasks without assuming a material type or effect.
-- Do not control UE UI or auto-click Blueprint nodes by default.
-- Probe Remote Execution once. If discovery fails, give the task a unique `UE_AI_BRIDGE_TASK_ID`, atomically update `Saved/CodexScripts/run_task.py`, and use `任务脚本 -> 运行任务脚本`.
-- Read `Saved/CodexScripts/last_task_report.json` and match its `task_id` before claiming success.
-- Preserve existing startup Python, task files, assets, and unrelated user changes.
-
-Reflection changes require a successful build and Unreal Editor restart. Do not promise full Blueprint EventGraph generation through Python.
+- Work at file level. Use Unreal Python inside the editor for the user's requested editor-asset work; do not assume a material type or effect.
+- For separately requested C++ features, use project `Source` and the actual Editor Target, not a module name. Do not default to plugins. Reflection changes require a successful build and editor restart.
+- The bridge button uses Python ToolMenus only: a white **▶** in the top toolbar, with label `▶ 运行任务脚本` where visible. Its icon is `set_icon("EditorStyle", "PlayWorld.PlayInViewport", "Icons.Play")`. Reuse the shipped template; do not invent style keys.
+- Never add C++ modules, plugins, Target files, or another `.uproject` just to create or beautify this button. Do not change project module declarations for the icon. Repeated API failures are a reason to inspect the installed engine source, not to expand architecture without approval.
+- Remove only the bridge's legacy task menu, and only after its toolbar entry is ready. Keep unrelated menus and all runtime Python/task files. Do not add a replacement panel.
+- Preserve user changes. Before installation/upgrading, back up bridge files: installers overwrite the bridge init and runner, preserve an existing task, and preserve/extend startup Python. They do not automatically back up files. Inspect a preserved task before any click.
+- Check Python Editor Script Plugin and Editor Scripting Utilities. If disabled, explain the required enablement/restart; do not silently rewrite the `.uproject`.
+- Probe Remote Execution discovery once. If it fails, assign a unique `UE_AI_BRIDGE_TASK_ID`, atomically update `Saved/CodexScripts/run_task.py`, and ask the user to click the white **▶** once. Do not control the UE UI or click Blueprint nodes by default.
+- Read `Saved/CodexScripts/last_task_report.json`. Acceptance requires `status: success`, matching current `task_id` **and** `task_sha256`, fresh start/finish timestamps, no error, and the expected result/asset state. A caught task exception or nested `ERROR` must not be treated as success just because the runner finished.
+- For a button test, use a reviewed no-asset-change task, then wait for the user's click. A report produced by direct/remote runner execution does not prove the button works. Verify visible appearance separately.
+- Do not promise full Blueprint EventGraph generation through Python.
