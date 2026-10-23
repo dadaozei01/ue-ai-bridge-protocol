@@ -1,25 +1,11 @@
-# DeepSeek Harness Prompt
+# deepseek-harness UE 接入提示词
 
-Use the UE AI Bridge Protocol at `https://github.com/dadaozei01/ue-ai-bridge-protocol`.
+先读取 https://github.com/dadaozei01/ue-ai-bridge-protocol/blob/main/docs/agent-entry.md ，并查准确引擎版本的协议。
 
-Read `docs/agent-entry.md` first. **Check the current project's button: preserve it if present; install the project-local template only if confirmed missing. Agent execution must prefer direct Remote Execution of a separate reviewed script.** This requires local file/terminal/Python permissions; reading GitHub alone grants no control of the user's machine.
+优先使用当前工程已经配置并验证可用的 EngineWire MCP；成熟批量任务可使用编辑器内 UE Python；独立 Remote Execution 作为备用。连接方式不按 UE 版本号硬编码。
 
-Do not reinstall, refresh, duplicate, or replace the existing button, startup loader, bridge modules, or task. A disabled task stays disabled. If the button state is partial or uncertain, inspect and report rather than overwriting. Installing a missing button does not authorize executing an unknown preserved task or restarting the editor.
+先确认目标 .uproject、实际版本、编辑器身份和任务范围。MCP 使用 search → describe → execute 与返回的 schema / nextCall；动态读取本机能力令牌，不打印或提交。Python 在 UE 编辑器内运行，不要求为已有 MCP 另开网络桥。
 
-Inspect the exact `.uproject`, installed engine version/path, platform, architecture, project modules, actual Editor Target, plugin state, and whether Unreal Editor is open before editing. Select the protocol for the exact installed engine version. Reserved version notes are not execution procedures.
+不安装按钮，不改现有启动文件；不因连接新增模块或 Target，不自动重启或另开编辑器。现有资产先查再改，只保存本次资产；失败或超时先检查实际状态，不盲目重发。批量执行与必要验证合理安排，不强制省额度。
 
-The toolbar-only bridge is verified on **Windows UE 5.4.4**. Historical macOS Apple Silicon UE 5.4 Python/menu and C++ checks do not validate the new toolbar on macOS, other patch versions, or Windows C++ builds. Read `protocols/UE5.4.md` and `docs/toolbar-button-ue5.4.md`; report unverified combinations instead of claiming compatibility.
-
-- Work at file level. Use Unreal Python inside the editor for the user's requested editor-asset work; do not assume a material type or effect.
-- For separately requested C++ features, use project `Source` and the actual Editor Target, not a module name. Do not default to plugins. Reflection changes normally require a successful build and editor restart; agree on that restart with the user first. An asset-only task does not require adding missing modules or Targets.
-- The bridge button uses Python ToolMenus only: a white **▶** in the top toolbar, with label `▶ 运行任务脚本` where visible. Its icon is `set_icon("EditorStyle", "PlayWorld.PlayInViewport", "Icons.Play")`. Reuse the shipped template; do not invent style keys.
-- Never add C++ modules, plugins, Target files, or another `.uproject` just to create or beautify this button. Do not change project module declarations for the icon. Repeated API failures are a reason to inspect the installed engine source, not to expand architecture without approval.
-- Only during a confirmed missing-button installation or an explicitly requested repair/upgrade, remove the bridge's legacy task menu after its toolbar entry is ready. Keep unrelated menus and all runtime Python/task files. Leave an existing working button alone; do not add a replacement panel.
-- Preserve user changes. Before installation/upgrading, back up bridge files: installers overwrite the bridge init and runner, preserve an existing task, and preserve/extend startup Python. They do not automatically back up files. Inspect a preserved task before any click.
-- Check Python Editor Script Plugin and Editor Scripting Utilities. If disabled, explain the required enablement/restart; do not silently rewrite the `.uproject`.
-- Discover Remote Execution once with the installed engine's module. Uniquely match the requested project/engine and validate identity inside UE; never reuse old node IDs/PIDs or pick the first editor. Execute a separate reviewed script once, not `ue_ai_bridge_runner.run_task()`. Record a unique task ID, SHA-256, identity, timestamps, and actual results separately; leave the button task/report untouched.
-- If direct execution is unavailable, report why and agree on a fallback. Do not automatically update `Saved/CodexScripts/run_task.py`, enable network settings, restart, or launch another editor. Only after explicit agreement to use the button may you back up and atomically update its task with a unique `UE_AI_BRIDGE_TASK_ID` and ask for a user click. Do not control the UE UI or click Blueprint nodes by default.
-- For an explicitly agreed button task, read `Saved/CodexScripts/last_task_report.json`. Acceptance requires `status: success`, matching current `task_id` **and** `task_sha256`, fresh start/finish timestamps, no error, and the expected result/asset state. This report does not describe independent direct tasks. A caught exception or nested `ERROR` must not be treated as success just because the runner finished.
-- For a button test, use a reviewed no-asset-change task, then wait for the user's click. A report produced by direct/remote runner execution does not prove the button works. Verify visible appearance separately.
-- Do not promise full Blueprint EventGraph generation through Python.
-- On an uncertain response or failed mutation, inspect logs, receipts, and actual state before further action; never blindly replay. Preserve user-tuned parameters, disabled scripts, and intentionally isolated startup recovery files. Do not auto-assign models, modify post-process settings, save unrelated assets, or restart UE. The recorded `Window Creation Failed / User Objects: 10000` root cause is unresolved; direct execution is not a crash fix.
+Windows UE 5.4.4 的 MCP 与部分功能已实测，Mac EngineWire 尚未验证。不要将历史 Python 或 C++ 验证外推到新插件。结果分别报告参数读回、编译、保存、运行、视觉效果。

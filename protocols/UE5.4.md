@@ -1,175 +1,41 @@
-# UE 5.4 File-Level AI Automation Protocol
+# UE 5.4 操作协议
 
-Start with [the cross-Agent entry rules](../docs/agent-entry.md): check the current project's button; preserve it if present, install the project-local template only if confirmed missing. Agent tasks prefer direct execution of independent scripts. A button is not a mandatory execution route.
+先读 [统一接入流程](../docs/agent-entry.md)。优先使用当前工程已经配置并验证可用的 EngineWire MCP；成熟批量任务可使用编辑器内 UE Python；独立 Remote Execution 作为备用。连接方式不按 UE 版本号硬编码。
 
-Verification scope:
+## 版本与预检
 
-- Windows UE 5.4.4: the current toolbar-only Python bridge, live refresh, visible white play icon, legacy-menu removal, and user-click task/report verification were tested on 2026-08-31.
-- macOS Apple Silicon UE 5.4: the earlier menu bridge and a real Blueprint + project C++ hybrid project were verified. The current toolbar-only UI has not been revalidated on macOS.
-- Windows C++ compilation is not newly verified by a successful Python button test.
+核对实际 UE 5.4 引擎版本、工程绝对路径、PID、架构和所选通道。Windows 5.4.4 的 EngineWire 连接与部分蓝图/材质/Niagara 有实测；Mac EngineWire 尚未验证。历史 Mac Python / C++ 实测不能外推为 MCP 可用。
 
-Use this protocol only after confirming that the project's `EngineAssociation` is `5.4`.
+Python Editor Script Plugin、Editor Scripting Utilities 按任务需要检查；Remote Execution 仅在采用该备用通道时需要。插件变更若需重启，先说明并取得当前任务授权，不自动关闭编辑器。纯资产任务不需要新建 Source、Target、插件或另一个 .uproject。
 
-## Before Editing
+## MCP 与蓝图
 
-Confirm and report:
+按 search → describe → execute 的当前 schema 操作。MCP 支持的蓝图节点/连线可直接编辑，不能沿用旧 Python 桥接“必须让用户粘贴”的限制；单凭 UE Python API 不应承诺完整 K2 图编写。需要时先查当前插件能力，而非猜节点格式。
 
-- Absolute `.uproject` path.
-- Absolute UE 5.4 engine path.
-- Platform and CPU architecture.
-- Project module names from `.uproject` and `Source/*/*.Build.cs`.
-- Editor Target name from `Source/*.Target.cs`.
-- Whether Python Editor Script Plugin and Editor Scripting Utilities are enabled.
-- Whether Unreal Editor is currently open.
-- Whether this project's task button already exists, is missing, or has an uncertain/partial installation. Preserve an existing button and task, including disabled placeholders; do not reinstall or refresh just to establish a direct connection.
+## Python 材质与资产
 
-For editor-asset-only work, missing project modules or an Editor Target do not require creating them. Inspect module/target details only where relevant; never repair or restore intentionally isolated startup files as a connection prerequisite.
+成熟批处理可以通过已验证的编辑器内 Python 执行。UE 5.4 常用 MaterialFactoryNew、MaterialEditingLibrary.create_material_expression / connect_material_expressions / connect_material_property / layout_material_expressions / recompile_material 与 EditorAssetLibrary.save_loaded_asset。属性未直接暴露时查 set_editor_property 支持。
 
-If either required Python plugin is disabled, tell the user exactly which plugin is missing. Enable it through the project Plugin Browser, or edit the `.uproject` only with the user's authorization and a recoverable backup. A plugin-state change requires an Unreal Editor restart.
-
-Editor Target is not necessarily the module name. Build the target declared by the `TargetRules` class whose `Type` is `TargetType.Editor`; do not construct a target name by blindly appending `Editor` to a module name.
-
-Typical engine paths:
-
-```text
-macOS:   /Users/Shared/Epic Games/UE_5.4
-Windows: C:\Program Files\Epic Games\UE_5.4
-```
-
-## Boundaries
-
-- Do not control the Unreal Editor UI as the first approach.
-- Do not create a plugin unless the user explicitly requests one.
-- Do not auto-click Blueprint graph nodes.
-- Do not promise full Blueprint EventGraph K2 node authoring through Python.
-- Do not spend an extended session repeatedly probing Remote Execution.
-- Do not overwrite existing project startup Python or task files during bridge installation.
-- Do not replace or delete existing asset graphs unless the user explicitly requested replacement.
-- Button/icon work must stay in Python. Do not add a C++ module, plugin, Editor Target, or alternate `.uproject` for button decoration.
-- After repeated UI/API failures, stop and inspect the installed engine source; do not expand the architecture without user approval.
+先 load/inspect，确认任务范围后改图并保存指定资产。编译和布局是写入，不当作只读验证；材质编译可能触发编辑器刷新。历史事故边界见接入流程。
 
 ## Project C++
 
-Use project C++ under the existing project module:
+仅在用户任务需要运行时/反射功能时使用工程 Source 和实际 Editor Target。Editor Target is not necessarily the module name：读取 Source/*.Target.cs 中 Type=TargetType.Editor 的 TargetRules，不盲目拼接模块名 + Editor。
 
-```text
-<PROJECT>/Source/<Module>/Public/
-<PROJECT>/Source/<Module>/Private/
-```
-
-Only add `.uproject` `Modules` and standard target/module files when converting a Blueprint-only project or intentionally adding a module. Blueprint assets continue to work in a project that contains C++.
-
-macOS Apple Silicon:
-
-```bash
-<ENGINE>/Engine/Build/BatchFiles/Mac/Build.sh <EditorTarget> Mac Development \
-  -project="<PROJECT>/<Name>.uproject" \
-  -architecture=arm64 \
-  -NoHotReload
-```
-
-Windows:
+Windows：
 
 ```bat
-"<ENGINE>\Engine\Build\BatchFiles\Build.bat" <EditorTarget> Win64 Development ^
-  -project="<PROJECT>\<Name>.uproject" ^
-  -NoHotReload
+"<ENGINE>\Engine\Build\BatchFiles\Build.bat" <EditorTarget> Win64 Development -project="<PROJECT>\<Name>.uproject" -NoHotReload
 ```
 
-When adding or changing `UCLASS`, `UFUNCTION`, `UPROPERTY`, `USTRUCT`, or `UENUM`, a successful build and editor restart are normally required. Live Coding can leave stale reflection data. Explain and obtain the user's agreement before restarting; never close their running editor automatically. For `.cpp` implementation-only changes, Live Coding may be attempted within the approved scope, but fall back to an agreed normal Editor Target build if results are stale.
+Mac Apple Silicon：
 
-## Materials And Editor Assets
-
-The protocol is task-neutral. Translate the user's requested asset or material behavior into standard UE Python; do not assume a particular material type or visual effect.
-
-For traditional material graph authoring in UE 5.4, prefer the APIs available in the installed engine, including:
-
-- `unreal.MaterialFactoryNew`
-- `unreal.MaterialEditingLibrary.create_material_expression`
-- `unreal.MaterialEditingLibrary.connect_material_expressions`
-- `unreal.MaterialEditingLibrary.connect_material_property`
-- `unreal.MaterialEditingLibrary.layout_material_expressions`
-- `unreal.MaterialEditingLibrary.recompile_material`
-- `unreal.EditorAssetLibrary.save_loaded_asset`
-
-Use `set_editor_property` on expression instances when a property is not exposed as a direct Python attribute. Before changing an existing asset, load and inspect it. Rebuild or delete its graph only when replacement is explicitly requested.
-
-The above authoring APIs are not read-only checks. In UE 5.4.4, `recompile_material` also refreshes the editor and can create a progress window through texture-streaming data updates. A previous `Window Creation Failed / User Objects: 10000` incident remains unexplained at the resource-growth level. Do not blindly rerun that script, increase system quotas, or claim direct execution fixes the underlying crash. Read the [incident boundaries](../docs/agent-entry.md#4-已知事故边界).
-
-## Python Execution Order
-
-1. Independently inspect the button: preserve an existing one; install only a confirmed missing project-local button after prerequisites and conflict checks. Do not silently restart or alter plugin/startup configuration.
-2. Prefer Remote Execution for the Agent task. Make one short discovery attempt, uniquely match the requested project and engine, and validate identity inside UE. Never reuse an old PID/node ID or simply choose the first discovered editor.
-3. Run a separate reviewed UTF-8 script once. Keep the button's `run_task.py` and `last_task_report.json` untouched. Do not call `ue_ai_bridge_runner.run_task()` for an independent direct task. Keep direct-task receipts and results separate, matching ID/hash/identity and verifying the actual UE state.
-4. If direct execution is unavailable, report the reason and obtain agreement on a fallback. Do not automatically rewrite the button task. Only for an explicitly agreed button task: back up and atomically update its script, ask the user to click the white toolbar ▶ once, then verify its report. A disabled task must not be re-enabled without explicit authorization.
-5. Use command-line Python only when a separate editor process is explicitly approved, appropriate, and project plugins are already enabled. It is not an automatic fallback on the user's live project.
-
-Use the installed engine's `remote_execution.py`, with bounded discovery, identity guards, short responses, and `finally: connection.stop()` cleanup; see [the full connection procedure](../docs/agent-entry.md#2-agent-执行功能优先直连). If a mutation times out or its result is uncertain, inspect state and logs; do not replay it automatically.
-
-UE 5.4 Remote Execution uses UDP multicast discovery. The editor setting can be enabled while a sandboxed external tool still cannot discover it. This is an environment limitation, not proof that the user configured UE incorrectly.
-
-## Button Bridge
-
-Installed files:
-
-```text
-<PROJECT>/Content/Python/init_unreal.py
-<PROJECT>/Content/Python/ue_ai_bridge_init.py
-<PROJECT>/Content/Python/ue_ai_bridge_runner.py
-<PROJECT>/Saved/CodexScripts/run_task.py
+```sh
+"<ENGINE>/Engine/Build/BatchFiles/Mac/Build.sh" <EditorTarget> Mac Development -project="<PROJECT>/<Name>.uproject" -architecture=arm64 -NoHotReload
 ```
 
-The current standard is [the toolbar-only Python bridge](../docs/toolbar-button-ue5.4.md). `init_unreal.py` loads the bridge module. The bridge waits for the main menu and `LevelEditor.LevelEditorToolBar.PlayToolBar`, then registers `RunTaskScriptToolbar` in section `UEAIBridge` with label `▶ 运行任务脚本`. Compact toolbars may show only the icon.
+UCLASS/UFUNCTION/UPROPERTY/USTRUCT/UENUM 变更通常需要成功构建与编辑器重启，Live Coding 可能残留过期反射。先说明重启需求，遵守用户授权。实现层 .cpp 变更可在适用范围内使用 Live Coding，结果过期时采用正常构建。不是所有连接任务都需要 C++。
 
-Use `entry.set_icon("EditorStyle", "PlayWorld.PlayInViewport", "Icons.Play")`. These large/small brush names exist in the installed UE 5.4.4 `StarshipStyle.cpp`; `PlayWorld.Play` does not. The tested icon is white, not a promised green icon.
+## 验收
 
-Only after the toolbar succeeds, remove the old `UEAIBridgeTaskMenu` entry from `LevelEditor.MainMenu` and its `LevelEditor.MainMenu.UEAIBridgeTaskMenu` submenu. Never remove the main menu itself. If the toolbar is not ready, keep the existing menu and retry for at most 120 ticks; stop and report failure at the limit. Reloading updates the same toolbar entry without duplicating it or removing unrelated entries.
-
-UE 5.4 does not accept a normal Python string for `ToolMenuEntry.owner`. The verified bridge therefore does not assign that property. Do not reintroduce a string owner based on APIs from another engine version.
-
-The runner prevents overlapping execution and atomically writes:
-
-```text
-<PROJECT>/Saved/CodexScripts/last_task_report.json
-```
-
-Initial startup loading normally takes effect the next time the user opens the editor. Do not restart automatically. Later task execution does not require a restart.
-
-For an explicitly agreed installation/repair requiring live refresh, use the guide's reload procedure only after verifying the connected project, engine version, and module file path. Leave an existing working button alone. Unregister any previous pending callback before reloading. `find_menu` and `is_menu_registered` are not interchangeable: extension-only menus created by `add_sub_menu` can be found while not marked registered.
-
-## Task Result Contract
-
-This section describes the optional button runner, not independent direct-task reports. Direct tasks use their own ID/hash/identity/timestamps and result evidence; do not repurpose the button's report or accept a stale `running`/`success` as a new task result.
-
-`last_task_report.json` must have `"status": "success"`, but this is necessary, not sufficient. The runner treats a normal script return as success; a script that catches an exception and stores `"ERROR"`, `"all failed"`, or a missing result can still produce an outer success. Inspect `result` and verify the requested behavior. Required failures should raise rather than be silently swallowed. The existence of a `.uasset` file alone does not prove that its graph, properties, or connections are correct.
-
-Tasks may publish structured details:
-
-```python
-UE_AI_BRIDGE_TASK_ID = "a-unique-id-for-this-task"
-UE_AI_BRIDGE_RESULT = {
-    "message": "Task-specific summary",
-    "assets": ["/Game/Path/AssetName"],
-}
-```
-
-Before accepting a previous `success`, compare the report's `task_id` or `task_sha256` with the current task. A successful report for an older task is not proof that the current task ran.
-
-For a new button smoke test, use a new explicit task ID and require both ID and script SHA-256 to match, as well as timestamps after the test was prepared. Do not execute the test remotely and then count that report as a user-click test. A failed task may have a null `task_id` because execution stopped before the runner collected its namespace; use the hash and traceback for diagnosis.
-
-## Verification
-
-After every task:
-
-- C++: require a successful Editor Target build and state whether a restart is required.
-- Direct Python: match the independent task's receipt/report and verify the requested UE state; inspect the UE log on failure or an ambiguous response. Do not substitute the button report.
-- Button Python: read `last_task_report.json`, matching the task ID/hash/timestamps and expected results.
-- Assets: verify expected package paths and the requested graph or property state inside UE.
-- Never claim success from file writes alone.
-- Button acceptance has separate checks: visible triangle, retained execution binding, and a matching report produced after the user click. No popup is expected from a log-only test.
-
-macOS UE editor logs are typically under:
-
-```text
-~/Library/Logs/Unreal Engine/<ProjectName>Editor/
-```
+按当前任务分别核对资产路径、节点/属性、编译、保存、运行和场景镜头。独立脚本结果记录任务 ID、SHA-256、工程/版本/PID 与时间；不得用历史报告代替。超时/失败先查当前状态，不盲目重发。禁止为了接入安装或刷新按钮，旧工程入口不自动卸载。

@@ -1,16 +1,10 @@
-# UE AI Bridge: Agent entry
+# UE Agent entry
 
-Read `docs/agent-entry.md` and the protocol for the exact installed UE version before acting on a user's Unreal project. This repository contains shared instructions and templates, not authorization to mutate every project.
+Read docs/agent-entry.md and the exact installed UE version notes. 优先使用当前工程已经配置并验证可用的 EngineWire MCP；成熟批量任务可使用编辑器内 UE Python；独立 Remote Execution 作为备用。连接方式不按 UE 版本号硬编码。
 
-- Inspect first. Confirm the exact `.uproject`, editor identity, version, enabled plugins, and current project-local task button.
-- Existing button: preserve the button, startup loader, bridge modules, and task file. No reinstall, duplicate registration, automatic refresh, or smoke-test replacement.
-- Confirmed missing button: install the project-local Python template after prerequisite and safety checks. Do not install globally. Partial/uncertain installation is not a license to overwrite.
-- Prefer direct Remote Execution of a separate reviewed task. Do not invoke the button runner or overwrite `Saved/CodexScripts/run_task.py` for a direct task.
-- A disabled task stays disabled unless the user explicitly asks to change it.
-- Discovery failure: report the blocker and agree on a fallback. Never automatically switch to rewriting the button task, enabling network settings, restarting, or launching another editor.
-- No new C++ modules, targets, plugins, or startup changes merely to connect. Do not restore files intentionally isolated during startup recovery.
-- No automatic asset overwrite, deletion, scene assignment, or post-process change beyond the requested scope. Preserve user-tuned parameters; save only explicitly approved assets.
-- A failed or timed-out mutation may already have side effects. Inspect receipts/logs/current state before any further action; do not blindly replay it.
-- Keep credentials, private project paths, assets, logs, and generated task receipts out of public commits. Use placeholders in published instructions.
-
-When maintaining this repository, keep README, the UE 5.4 protocol, the button guide, and all harness prompts consistent. Run `python -m unittest discover -s tests -v`. Offline tests do not prove a real visible button, a click, network reachability, or an asset's visual result; report those separately.
+- 只读确认 .uproject、引擎、版本、PID 与当前关卡，禁止取第一个发现的编辑器。
+- 按 MCP 返回的 schema 与 nextCall 执行；能力授权不代替用户授权。
+- 保留现有启动脚本与用户入口，不为连接新增 C++ 模块、Target 或另一份工程。
+- 不自动覆盖资产、保存全部脏关卡、重启编辑器或启动第二个编辑器。结果不明先读回再重试。
+- 不发布令牌、用户资产、截图、私有路径或任务日志。
+- 维护 README、协议、Agent 提示词的一致性，运行 python -m unittest discover -s tests -v。
