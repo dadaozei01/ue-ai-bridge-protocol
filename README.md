@@ -10,6 +10,7 @@
 
 - [统一接入流程](docs/agent-entry.md)
 - [UE 5.4 的 Python / C++ 注意事项](protocols/UE5.4.md)
+- [蓝图节点排列方式](docs/blueprint-layout.md)
 - [EngineWire 安装、Windows 编译包与客户端配置](https://github.com/dadaozei01/enginewire-ue54)
 - [Claude 接入与历史备用工具](https://github.com/dadaozei01/ue-claude-bridge)
 - [通用提示词](harness-prompts/universal.md)
@@ -19,7 +20,7 @@
 ## 验证范围
 
 - Windows UE 5.4.4：独立 Python Remote Execution 曾实测；2026-10-23 已实测 EngineWire MCP 的连接、蓝图、材质与 Niagara 操作。
-- macOS Apple Silicon UE 5.4：历史 Python 与工程 C++ 有实测；EngineWire Mac 二进制尚未编译或验证。
+- macOS Apple Silicon UE 5.4.4：历史 Python 与工程 C++ 有实测；2026-10-24 已实测 EngineWire MCP 的连接、蓝图创建与批量写图表、生成 Actor、编辑器内 Python 与 PIE。Mac 上中文输入法激活时在 UE 输入框打字可能卡死，改数值前切英文输入法。
 - UE 5.5 / 5.6 / 5.8 文件为预留记录，不是执行程序；不按版本推定存在“官方 MCP”或兼容能力。
 
 阅读 GitHub 不会赋予本机权限，Agent 名称也不代表兼容性认证。仅网页聊天环境不能因此直接操作 UE。

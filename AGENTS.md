@@ -7,4 +7,5 @@ Read docs/agent-entry.md and the exact installed UE version notes. 优先使用�
 - 保留现有启动脚本与用户入口，不为连接新增 C++ 模块、Target 或另一份工程。
 - 不自动覆盖资产、保存全部脏关卡、重启编辑器或启动第二个编辑器。结果不明先读回再重试。
 - 不发布令牌、用户资产、截图、私有路径或任务日志。
+- 写蓝图图表时创建节点就带坐标，按 docs/blueprint-layout.md 分段分行，不为排版额外截图验证。
 - 维护 README、协议、Agent 提示词的一致性，运行 python -m unittest discover -s tests -v。
