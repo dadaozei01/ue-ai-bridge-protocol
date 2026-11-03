@@ -9,3 +9,6 @@ Read docs/agent-entry.md and the exact installed UE version notes. 优先使用�
 - 不发布令牌、用户资产、截图、私有路径或任务日志。
 - 写蓝图图表时创建节点就带坐标，按 docs/blueprint-layout.md 保持规整易读：执行线单独一行，数据计算在下方分道汇总，变量就近取值并对齐引脚，保留用户布局，不为排版额外截图验证。
 - 维护 README、协议、Agent 提示词的一致性，运行 python -m unittest discover -s tests -v。
+
+
+蓝图排版：创建时带坐标；正常长度优先紧凑单行，确实超长才按段折行；每行白色执行引脚水平对齐（不要求节点 Y 相同）；数据就近分道汇总；双输入组居中、三输入中间对齐且上下均布；跨行用外侧转接点；保留用户布局，仅对异常局部核对。
