@@ -1,11 +1,11 @@
 # deepseek-harness UE 接入提示词
 
-先读取 https://github.com/dadaozei01/ue-ai-bridge-protocol/blob/main/docs/agent-entry.md ，并查准确引擎版本的协议。
+先读取以下文档并照做，本地技能副本与线上冲突时以线上为准：
 
-优先使用当前工程已经配置并验证可用的 EngineWire MCP；成熟批量任务可使用编辑器内 UE Python；独立 Remote Execution 作为备用。连接方式不按 UE 版本号硬编码。
+- https://github.com/dadaozei01/ue-ai-bridge-protocol/blob/main/docs/agent-entry.md （接入、边界与验收）
+- https://github.com/dadaozei01/ue-ai-bridge-protocol/blob/main/docs/blueprint-layout.md （写蓝图图表时的节点排版）
+- https://github.com/dadaozei01/enginewire-ue54 的 docs/agent-guide.md （EngineWire MCP 的连接与调用）
 
-先确认目标 .uproject、实际版本、编辑器身份和任务范围。MCP 使用 search → describe → execute 与返回的 schema / nextCall；动态读取本机能力令牌，不打印或提交。Python 在 UE 编辑器内运行，不要求为已有 MCP 另开网络桥。
+优先使用已验证的 EngineWire MCP；批量任务可经 MCP 在编辑器内运行 UE Python；独立 Remote Execution 仅作备用。令牌从目标工程动态读取，不打印、不提交；客户端无法动态读取时告诉用户怎么配置。
 
-不安装按钮，不改现有启动文件；不因连接新增模块或 Target，不自动重启或另开编辑器。现有资产先查再改，只保存本次资产；失败或超时先检查实际状态，不盲目重发。批量执行与必要验证合理安排，不强制省额度。
-
-Windows UE 5.4.4 的 MCP 与部分功能已实测，Mac EngineWire 尚未验证。不要将历史 Python 或 C++ 验证外推到新插件。结果分别报告参数读回、编译、保存、运行、视觉效果。
+第一步：连上后只读报告目标 .uproject 路径、引擎版本、编辑器 PID 与当前关卡，等用户确认后再开始任务。

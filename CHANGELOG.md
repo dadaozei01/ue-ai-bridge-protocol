@@ -4,6 +4,8 @@
 
 ## 2026-11-03
 
+harness-prompts/deepseek-harness.md 精简为指引：只列 agent-entry.md、blueprint-layout.md 与 EngineWire agent-guide.md 让 Agent 自行读取，细则不再重复；保留通道优先级、令牌不外泄与首步只读确认目标工程。
+
 蓝图排列方式按用户手排的函数补充：执行线单独一行，数据计算在执行线下方分道汇总、汇合节点居中，变量就近取值并对齐引脚，修改已有图表时保留用户布局；增加函数参考坐标。AGENTS.md 与 agent-entry.md 同步。
 
 ## 2026-10-23
