@@ -2,6 +2,7 @@
 
 Read docs/agent-entry.md and the exact installed UE version notes. 优先使用当前工程已经配置并验证可用的 EngineWire MCP；成熟批量任务可使用编辑器内 UE Python；独立 Remote Execution 作为备用。连接方式不按 UE 版本号硬编码。
 
+- 简单机械操作（建文件夹、移动、改名、复制等）走 agent-entry.md 第 0 节：两项及以上用一个 UE Python 脚本做完，不逐项调用 MCP，不读其他文档。
 - 只读确认 .uproject、引擎、版本、PID 与当前关卡，禁止取第一个发现的编辑器。
 - 按 MCP 返回的 schema 与 nextCall 执行；能力授权不代替用户授权。
 - 保留现有启动脚本与用户入口，不为连接新增 C++ 模块、Target 或另一份工程。

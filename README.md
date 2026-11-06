@@ -4,6 +4,8 @@
 
 优先使用当前工程已经配置并验证可用的 EngineWire MCP；成熟批量任务可使用编辑器内 UE Python；独立 Remote Execution 作为备用。连接方式不按 UE 版本号硬编码。
 
+简单机械操作（建文件夹、移动、改名、复制等）走 agent-entry.md 第 0 节：两项及以上用一个 UE Python 脚本做完，不逐项调用 MCP，不读其他文档。
+
 ## 给其他 Agent 的入口
 
 > 先读 https://github.com/dadaozei01/ue-ai-bridge-protocol/blob/main/docs/agent-entry.md 。确认目标工程和版本；优先已验证的 EngineWire MCP，成熟批量工作可用 UE Python，Remote Execution 备用。先查再改，不覆盖用户资产，不盲目重发结果不明的写入。

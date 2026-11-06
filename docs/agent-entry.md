@@ -2,6 +2,17 @@
 
 优先使用当前工程已经配置并验证可用的 EngineWire MCP；成熟批量任务可使用编辑器内 UE Python；独立 Remote Execution 作为备用。连接方式不按 UE 版本号硬编码。
 
+## 0. 机械操作快速通道
+
+建文件夹，移动、改名、复制资产或文件夹，给关卡 Actor 改名或归入大纲文件夹，这类规则明确的操作走这里。读到这一节就够了，不再读其他章节、版本协议和排版文档，也不需要独立脚本文件、任务 ID 和 SHA-256 记录。
+
+1. 选工具：两项及以上用编辑器内 UE Python，一个脚本做完，不逐项调用 MCP；单项用最顺手的原生 MCP。EngineWire 下用 `system_control.execute_python`：describe 取一次 consentGrant，execute 时传 `code`。Python 不可用时用 MCP 的 `run_script` 一次批量。
+2. 确认目标：脚本开头打印工程路径、版本和 PID。与用户说的工程或路径对不上，或目标父目录不存在，就不写入并退出。
+3. 写入：同名已存在就跳过并报告，不覆盖。用 EditorAssetLibrary 的 make_directory、rename_asset、rename_directory、duplicate_asset，不在磁盘上直接动文件。不自动清理 Redirector。只保存动过的资产，不 Save All。
+4. 收尾：脚本末尾读回结果，汇报做了几项、跳过几项。超时或结果不明先读回，不重发。
+
+遇到这些情况不走快速通道：删除或覆盖；改蓝图图表、材质或参数；命名要求与实际资产对不上（先列出实际名称问清）；PIE 正在运行。
+
 ## 1. 只读确认目标
 
 获取用户目标 .uproject 的绝对路径、实际引擎路径、准确版本与架构、当前编辑器 PID 与关卡。工程 EngineAssociation 可能是 GUID，不能只凭字符串判断版本。检查任务范围与未保存状态；纯资产任务没有 Source 或 Editor Target 很正常。仅检查所选执行方式所需的插件，不因使用 MCP 就强制打开 Python Remote Execution。

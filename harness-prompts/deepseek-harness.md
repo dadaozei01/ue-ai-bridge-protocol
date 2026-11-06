@@ -1,5 +1,7 @@
 # deepseek-harness UE 接入提示词
 
+简单机械操作（建文件夹、移动、改名、复制等）走 agent-entry.md 第 0 节：两项及以上用一个 UE Python 脚本做完，不逐项调用 MCP，不读其他文档。
+
 先读取以下文档并照做，本地技能副本与线上冲突时以线上为准：
 
 - https://github.com/dadaozei01/ue-ai-bridge-protocol/blob/main/docs/agent-entry.md （接入、边界与验收）
