@@ -6,7 +6,7 @@
 
 建文件夹，移动、改名、复制资产或文件夹，给关卡 Actor 改名或归入大纲文件夹，这类规则明确的操作走这里。读到这一节就够了，不再读其他章节、版本协议和排版文档，也不需要独立脚本文件、任务 ID 和 SHA-256 记录。
 
-1. 选工具：两项及以上用编辑器内 UE Python，一个脚本做完，不逐项调用 MCP；单项用最顺手的原生 MCP。EngineWire 下用 `system_control.execute_python`：describe 取一次 consentGrant，execute 时传 `code`。Python 不可用时用 MCP 的 `run_script` 一次批量。
+1. 选工具：两项及以上用编辑器内 UE Python，一个脚本做完，不逐项调用 MCP；单项用最顺手的原生 MCP。EngineWire 下用 `system_control.execute_python`：每次执行前 describe 取一次性 consentGrant，execute 时传 `code`；同一会话已查过的能力不重复 search，search 首行带 signature 时可跳过 describe。Python 不可用时用 MCP 的 `run_script` 一次批量。
 2. 确认目标：脚本开头打印工程路径、版本和 PID。与用户说的工程或路径对不上，或目标父目录不存在，就不写入并退出。
 3. 写入：同名已存在就跳过并报告，不覆盖。用 EditorAssetLibrary 的 make_directory、rename_asset、rename_directory、duplicate_asset，不在磁盘上直接动文件。不自动清理 Redirector。只保存动过的资产，不 Save All。
 4. 收尾：脚本末尾读回结果，汇报做了几项、跳过几项。超时或结果不明先读回，不重发。
