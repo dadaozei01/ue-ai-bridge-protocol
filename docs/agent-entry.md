@@ -28,6 +28,7 @@
 - 入口 unreal：search 定位 → describe 获取当前 schema → execute 执行。使用返回的 nextCall，不臆造参数。configure 是工具组配置。
 - consentGrant 按本次返回要求一次性使用，不能缓存，也不代替用户对任务的授权。
 - 初次连接先只读确认工程或 Actor。MCP 可用时不再为连接安装按钮或额外 Python 网络桥。
+- UE 5.8 官方 MCP（默认 8000/mcp，实验性、无鉴权）与 EngineWire 同时开着时，默认只用 EngineWire：官方工具集经 `list_editor_toolsets` / `call_editor_tool` 调用，不直连官方服务器，这样仍有令牌、consentGrant、撤销回执和警告。Niagara、Chaos、PIE、截图、编辑器重启、批量 Python 只走 EngineWire。蓝图、材质、网格、数据表等通用编辑，官方有正好对应的工具时经 `call_editor_tool` 调官方的，没有再用 EngineWire 自带能力。EngineWire 未安装或连不上时才直连官方，之后能接上 EngineWire 再读回或截图核对。一个任务只用一个入口，中途不换；一边报不支持，先在另一边查一次再下结论。升级引擎或启用新插件后，先用 `list_editor_toolsets` 看官方新增了哪些工具集。
 
 ## 3. 编辑器内 UE Python
 
