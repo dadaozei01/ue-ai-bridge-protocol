@@ -21,7 +21,7 @@
 
 ## 2. EngineWire MCP
 
-插件安装与客户端配置以 [enginewire-ue54](https://github.com/dadaozei01/enginewire-ue54) 为准；本页只定义统一操作规范。
+插件安装与客户端配置以 [enginewire](https://github.com/dadaozei01/enginewire)（UE 5.8 在 main，UE 5.4 在 ue54 分支） 为准；本页只定义统一操作规范。
 
 - UE 开启 Native MCP Server 后重启生效。默认本机端点 http://127.0.0.1:3000/mcp；状态 MCP :3000 (0) 中 0 为客户端数。
 - X-MCP-Capability-Token 从目标工程 Saved/MCP/capability-token 动态读取，不打印、不写入仓库，不公开网络。

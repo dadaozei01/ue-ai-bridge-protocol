@@ -6,7 +6,7 @@
 
 - https://github.com/dadaozei01/ue-ai-bridge-protocol/blob/main/docs/agent-entry.md （接入、边界与验收）
 - https://github.com/dadaozei01/ue-ai-bridge-protocol/blob/main/docs/blueprint-layout.md （写蓝图图表时的节点排版）
-- https://github.com/dadaozei01/enginewire-ue54 的 docs/agent-guide.md （EngineWire MCP 的连接与调用）
+- https://github.com/dadaozei01/enginewire 的 docs/agent-guide.md （EngineWire MCP 的连接与调用）
 
 优先使用已验证的 EngineWire MCP；批量任务可经 MCP 在编辑器内运行 UE Python；独立 Remote Execution 仅作备用。令牌从目标工程动态读取，不打印、不提交；客户端无法动态读取时告诉用户怎么配置。
 

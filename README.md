@@ -13,7 +13,7 @@
 - [统一接入流程](docs/agent-entry.md)
 - [UE 5.4 的 Python / C++ 注意事项](protocols/UE5.4.md)
 - [蓝图节点排列方式](docs/blueprint-layout.md)
-- [EngineWire 安装、Windows 编译包与客户端配置](https://github.com/dadaozei01/enginewire-ue54)
+- [EngineWire 安装、Windows / Mac 编译包与客户端配置](https://github.com/dadaozei01/enginewire)（UE 5.8 在 main，UE 5.4 在 ue54 分支）
 - [Claude 接入与历史备用工具](https://github.com/dadaozei01/ue-claude-bridge)
 - [通用提示词](harness-prompts/universal.md)
 
