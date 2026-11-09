@@ -23,7 +23,8 @@
 
 - Windows UE 5.4.4：独立 Python Remote Execution 曾实测；2026-10-23 已实测 EngineWire MCP 的连接、蓝图、材质与 Niagara 操作。
 - macOS Apple Silicon UE 5.4.4：历史 Python 与工程 C++ 有实测；2026-10-24 已实测 EngineWire MCP 的连接、蓝图创建与批量写图表、生成 Actor、编辑器内 Python 与 PIE。Mac 上中文输入法激活时在 UE 输入框打字可能卡死，改数值前切英文输入法。
-- UE 5.5 / 5.6 / 5.8 文件为预留记录，不是执行程序；不按版本推定存在“官方 MCP”或兼容能力。
+- Windows x64 UE 5.8.4：EngineWire 预发布版 [v0.6.0-ue58.1](https://github.com/dadaozei01/enginewire-ue54/releases/tag/v0.6.0-ue58.1) 已实测插件加载、MCP 连接、引擎目录安装加载；中文编辑器下的蓝图文本读写和编译；打开资产；通过 `call_editor_tool` 调用官方工具集的一个只读工具；Geometry Collection 创建、Voronoi 切割、Auto Cluster、物理设置、切割和分组的撤销重做、保存、放置 Actor，以及 PIE 落地破碎。详见 [UE 5.8 验证范围](protocols/UE5.8-MCP.md)。
+- UE 5.5 / 5.6 文件为预留记录，不是执行程序；不按版本推定兼容能力。
 
 阅读 GitHub 不会赋予本机权限，Agent 名称也不代表兼容性认证。仅网页聊天环境不能因此直接操作 UE。
 
