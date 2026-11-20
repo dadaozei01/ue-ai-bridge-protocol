@@ -11,3 +11,5 @@
 优先使用已验证的 EngineWire MCP；批量任务可经 MCP 在编辑器内运行 UE Python；独立 Remote Execution 仅作备用。令牌从目标工程动态读取，不打印、不提交；客户端无法动态读取时告诉用户怎么配置。
 
 第一步：连上后只读报告目标 .uproject 路径、引擎版本、编辑器 PID 与当前关卡，等用户确认后再开始任务。
+
+处理蓝图图表时，遵循共享 [蓝图排版规范](https://github.com/dadaozei01/ue-ai-bridge-protocol/blob/main/docs/blueprint-layout.md)。局部整理保留未选锚点，新增节点与连线同批提交。对重叠、长绕线或歪白线，在正常编辑缩放下局部验收。
